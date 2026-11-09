@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://0.peerjs.com wss://0.peerjs.com; media-src 'self' blob: mediastream:; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#14161f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Vigila Bebé">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Vigila Bebé</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<main id="home" class="screen page">
+  <img class="logo" src="icon.svg" alt="" width="84" height="84">
+  <h1>Vigila Bebé</h1>
+  <p class="lead">¿Qué hace este móvil?</p>
+  <button id="goCamera" class="big primary">
+    <span class="big-title">Cámara</span>
+    <span class="big-sub">Se queda junto al bebé</span>
+  </button>
+  <button id="goViewer" class="big">
+    <span class="big-title">Monitor</span>
+    <span class="big-sub">Se queda contigo para ver y oír</span>
+  </button>
+  <p class="note">Envía solo sonido y enciende la imagen cuando la pides. Así gasta menos batería. No graba nada.</p>
+</main>
+
+<section id="camera" class="screen stage" hidden>
+  <video id="preview" playsinline autoplay muted></video>
+  <div class="top">
+    <button id="camBack" class="pill-btn" aria-label="Salir">‹ Salir</button>
+    <span id="camStatus" class="pill">Preparando…</span>
+  </div>
+  <div id="pairPanel" class="panel">
+    <h2>Conecta el otro móvil</h2>
+    <p>Escanea este código con la cámara del otro móvil.</p>
+    <div id="qr" class="qr" role="img" aria-label="Código QR del enlace"></div>
+    <div class="row">
+      <button id="shareLink" class="btn">Enviar enlace</button>
+      <button id="newCode" class="btn ghost">Cambiar código</button>
+    </div>
+    <p class="note">Quien tenga este enlace puede ver la cámara. Compártelo solo con tu pareja.</p>
+  </div>
+  <div class="bottom">
+    <button id="togglePair" class="btn ghost">Código</button>
+    <button id="flip" class="btn ghost">Girar cámara</button>
+    <button id="dim" class="btn">Oscurecer</button>
+  </div>
+  <p id="camWarn" class="warn" hidden></p>
+  <button id="dimLayer" class="dim-layer" hidden>
+    <span id="dimText">Cámara activa · Toca para ver</span>
+  </button>
+</section>
+
+<main id="viewerStart" class="screen page" hidden>
+  <h1>Monitor</h1>
+  <div id="noCode" hidden>
+    <p class="lead">Abre la Cámara en el otro móvil. Después escanea su código.</p>
+    <label for="linkInput">O pega aquí el enlace:</label>
+    <input id="linkInput" type="url" autocomplete="off" placeholder="https://…">
+    <p id="linkError" class="warn-text" hidden>Este enlace no sirve. Copia el enlace otra vez.</p>
+  </div>
+  <p id="hasCode" class="lead" hidden>Listo para conectar con la cámara.</p>
+  <button id="startViewer" class="big primary">
+    <span class="big-title">Empezar a vigilar</span>
+    <span class="big-sub">Activa el sonido y los avisos</span>
+  </button>
+  <button id="viewerBack" class="btn ghost">‹ Volver</button>
+  <p class="note">Mantén esta pantalla abierta. Si cierras la app o bloqueas el móvil, los avisos pueden pararse.</p>
+</main>
+
+<section id="viewer" class="screen stage" hidden>
+  <video id="remote" playsinline autoplay></video>
+  <div class="top">
+    <button id="viewerExit" class="pill-btn" aria-label="Salir">‹ Salir</button>
+    <span id="vStatus" class="pill">Conectando…</span>
+    <span id="vBattery" class="pill" hidden></span>
+  </div>
+  <div id="audioOnly" class="audio-only" hidden>
+    <strong>Solo sonido</strong>
+    <span>La cámara está apagada para ahorrar batería.</span>
+  </div>
+  <button id="tapAudio" class="center-btn" hidden>Toca para oír</button>
+  <div id="noise" class="toast" role="status" hidden>Se oye ruido</div>
+  <div class="bottom column">
+    <div class="meter" aria-hidden="true"><div id="meterFill"></div><div id="meterMark"></div></div>
+    <div class="row">
+      <button id="videoBtn" class="btn">Ver 1 minuto</button>
+      <button id="videoKeep" class="btn ghost" hidden>Dejar encendida</button>
+    </div>
+    <div class="row">
+      <button id="liveAudio" class="btn ghost" aria-pressed="true">Sonido: sí</button>
+      <label class="sens">Aviso de ruido
+        <input id="sens" type="range" min="1" max="5" step="1" value="3" aria-label="Sensibilidad del aviso de ruido">
+      </label>
+    </div>
+  </div>
+  <div id="alarm" class="alarm" role="alert" hidden>
+    <strong id="alarmTitle">Sin conexión con la cámara</strong>
+    <p id="alarmText">No puedes ver al bebé ahora. Intento conectar otra vez.</p>
+    <button id="alarmMute" class="btn light">Parar el pitido</button>
+  </div>
+</section>
+
+<script src="vendor/peerjs.min.js"></script>
+<script src="vendor/qrcode.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
